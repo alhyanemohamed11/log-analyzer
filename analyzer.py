@@ -10,13 +10,15 @@ def main():
     ap.add_argument("--threshold", type=int, default=5, help="failures needed to alert")
     ap.add_argument("--window", type=int, default=120, help="window in seconds")
     ap.add_argument("--year", type=int, default=2026, help="year for old-style timestamps")
+    ap.add_argument("--min-failures", type=int, default=3,
+                help="failures before a success counts as suspicious")
     args = ap.parse_args()
 
     events = parse_auth(args.log, year=args.year)
     print(f"{len(events)} login events parsed\n")
 
     alerts = detect_bruteforce(events, args.threshold, args.window)
-    alerts += detect_success_after_failures(events)
+    alerts += detect_success_after_failures(events, min_failures=args.min_failures)
 
     if not alerts:
         print("No alerts.")
